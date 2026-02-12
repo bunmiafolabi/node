@@ -23,7 +23,9 @@ const server = http.createServer((req, res) => {
     req.on('end', () => {
       const parsedBody = Buffer.concat(body).toString();
       console.log('parsedBody', parsedBody);
-      const message = decodeURIComponent(parsedBody.split('=')[1]);
+      const message = decodeURIComponent(
+        parsedBody.split('=')[1].replace(/\+/g, ' ')
+      );
       console.log('message', message);
       fs.writeFileSync('message.txt', message);
       res.statusCode = 302;
