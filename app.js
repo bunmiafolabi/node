@@ -17,19 +17,19 @@ const server = http.createServer((req, res) => {
   if (req.url === '/message' && req.method === 'POST') {
     const body = [];
     req.on('data', (chunk) => {
-      console.log('chunk', chunk);
       body.push(chunk);
     })
     req.on('end', () => {
       const parsedBody = Buffer.concat(body).toString();
-      console.log('parsedBody', parsedBody);
       const message = decodeURIComponent(
         parsedBody.split('=')[1].replace(/\+/g, ' ')
       );
-      console.log('message', message);
       fs.writeFileSync('message.txt', message);
       res.statusCode = 302;
-      res.setHeader('Location', '/'); 
+      res.setHeader('Location', '/message'); 
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.write(`<p>Message received: <strong>${message}</strong></p>`);
+      res.write('<a href="/">Go back to home</a>');
       return res.end();
     })
   }
@@ -38,14 +38,3 @@ const server = http.createServer((req, res) => {
 server.listen(port, () => {
   console.log(`port running on port ${port}`);
 })
-
-/* 
-
-port running on port 4000
-chunk <Buffer 6d 65 73 73 61 67 65 3d 48 65 6c 6c 6f>
-parsedBody message=Hello
-message Hello
-chunk <Buffer 6d 65 73 73 61 67 65 3d 48 65 6c 6c 6f>
-parsedBody message=Hello
-message Hello
-*/
